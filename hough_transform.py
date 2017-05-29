@@ -3,6 +3,8 @@ import numpy as np
 import math
 from collections import defaultdict
 
+from abc import ABCMeta, abstractmethod
+
 # http://www.keymolen.com/2013/05/hough-transformation-c-implementation.html
 
 class Accumulator:
@@ -26,13 +28,23 @@ class Accumulator:
         return self.data[(int(r), int(th))]
 
 
-class HoughTransform:
+class HoughTransform(metaclass=ABCMeta):
     def __init__(self, image, threthold):
         self.image       = image
         self.accumulator = None
         self.threthold   = threthold
 
-    def transform(self):
+    @abstractmethod
+    def hough_transform(self):
+        pass
+
+    @abstractmethod
+    def detect(self):
+        pass
+
+
+class LineDetector(HoughTransform):
+    def hough_transform(self):
         img_h, img_w = self.image.shape
         center_x, center_y = img_w/2.0, img_h/2.0
 
@@ -48,7 +60,7 @@ class HoughTransform:
                     r = (x - center_x) * math.cos(math.radians(t)) + (y - center_y) * math.sin(math.radians(t))
                     self.accumulator.increment(r + hough_h, t)
 
-    def get_lines(self):
+    def detect(self):
         if self.accumulator == None:
             return []
 
@@ -76,4 +88,3 @@ class HoughTransform:
                     x2 = ((r - accu_h/2) - (y2 - img_h/2) * math.sin(rad)) / math.cos(rad) + img_w/2
                 lines.append(((int(x1), int(y1)), (int(x2), int(y2))))
         return lines
-

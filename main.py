@@ -1,5 +1,6 @@
 import cv2
-from hough_transform import HoughTransform
+import numpy as np
+from hough_transform import LineDetector
 
 def preprocess(img):
     img_blur = cv2.blur(img, (5, 5))            # Smoothing
@@ -14,12 +15,15 @@ def main():
 
     h, w = img_preprocessed.shape
 
+    cv2.imshow("Preprocessed", img_preprocessed)
+    cv2.waitKey(0)
+
     print("Image cols: {}".format(w))
     print("Image rows: {}".format(h))
 
-    hough = HoughTransform(img_preprocessed, 175)
-    hough.transform()
-    lines = hough.get_lines()
+    detector = LineDetector(img_preprocessed, 175)
+    detector.hough_transform()
+    lines = detector.detect()
     print("Lines: {}".format(lines))
 
     img_res = img_color.copy()
